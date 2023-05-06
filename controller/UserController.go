@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 func Register(c *gin.Context) {
@@ -41,7 +40,7 @@ func Register(c *gin.Context) {
 	}
 	log.Println(name, telephone, password)
 	//判断手机号是否存在
-	if isTelephoneExist(db, telephone) {
+	if util.IsTelephoneExist(db, telephone) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    422,
 			"message": "用户已经存在",
@@ -71,16 +70,6 @@ func Register(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "注册成功",
 	})
-}
-
-func isTelephoneExist(db *gorm.DB, telephone string) bool {
-
-	var user model.User
-	db.Where("telephone = ?", telephone).First(&user)
-	if user.ID != 0 {
-		return true
-	}
-	return false
 }
 
 func Login(c *gin.Context) {
