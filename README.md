@@ -1,0 +1,1 @@
+go build && ./ES.exe
