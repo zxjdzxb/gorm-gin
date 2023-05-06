@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
 	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -19,8 +20,10 @@ type User struct {
 }
 
 func main() {
+
 	db := InitDb()
-	defer db.Close()
+	sqlDB, _ := db.DB()
+	defer sqlDB.Close()
 
 	r := gin.Default()
 	r.POST("/api/auth/register", func(c *gin.Context) {
@@ -96,16 +99,15 @@ func isTelephoneExist(db *gorm.DB, telephone string) bool {
 }
 
 func InitDb() *gorm.DB {
-	driverName := "mysql"
 	host := "localhost"
 	port := "3306"
 	database := "ginessential"
 	username := "root"
 	password := "zxj621"
 	charset := "utf8mb4"
-	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
 		username, password, host, port, database, charset)
-	db, err := gorm.Open(driverName, args)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database,err:" + err.Error())
 	}
